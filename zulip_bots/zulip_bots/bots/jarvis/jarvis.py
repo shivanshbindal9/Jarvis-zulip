@@ -220,6 +220,7 @@ class JarvisHandler(object):
 
         # Checking if the link exists.
         query = message['content'][8:]
+        query = '\''+query+'\''
         if query == '':
             return help_text.format(bot_handler.identity().mention)
 
@@ -232,23 +233,22 @@ class JarvisHandler(object):
                 headers={'api-key': 'f408eaa3-9f9a-439a-978c-a3c24eef05c4'}
             )
         except requests.exceptions.RequestException:
-            logging.error('broken link')
             return 'Uh-Oh ! Sorry ,couldn\'t process the request right now.:slightly_frowning_face:\n' \
                    'Please try again later.'
 
         # Checking if the bot accessed the link.
         if data.status_code != 200:
-            logging.error('Page not found.')
             return 'Uh-Oh ! Sorry ,couldn\'t process the request right now.:slightly_frowning_face:\n' \
                    'Please try again later.'
         new_content = 'Analysing...'
-        if len(data.json()['articles']) == 0:
+
+        if len(data.json()['output']['captions']) == 0:
             new_content = 'I am sorry. No object is not found'
         else:
-            for i in range(min(3, len(data.json()))):
-                caption = data.json()[i]['caption']
-                confidence = data.json()[i]['confidence']
-                new_content += caption+' is detected with a confidence of '+confidence+' \n'
+            for i in range(min(5, len(data.json()['output']['captions']))):
+                caption = data.json()['output']['captions'][i]['caption']
+                confidence = data.json()['output']['captions'][i]['confidence']
+                new_content += caption+' is detected with a confidence of '+str(confidence)+' \n'
 
         return new_content
 
