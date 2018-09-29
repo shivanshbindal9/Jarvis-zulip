@@ -31,10 +31,11 @@ class JarvisHandler(object):
     def handle_message(self, message: Dict[str, str], bot_handler: Any) -> None:
 
         first_word = message['content'].split(' ', 1)[0]
-
+        if first_word == "joke":
+            bot_response = self.get_bot_joke_response(message,bot_handler)
         if first_word == "wikipedia":
             bot_response = self.get_bot_wiki_response(message, bot_handler)
-        elif first_word == "news":
+        if first_word == "news":
             bot_response = self.get_bot_news(message,bot_handler)
         bot_handler.send_reply(message, bot_response)
 
@@ -81,7 +82,36 @@ class JarvisHandler(object):
                 new_content += str(i+1) + ':' + '[' + search_string + ']' + '(' + url.replace('"', "%22") + ')\n'
         return new_content
 
-    #def get_bot_joke_response(self, message: Dict[str, str], bot_handler: Any) -> Optional[str]:
+    def get_bot_joke_response(self, message: Dict[str, str], bot_handler: Any) -> Optional[str]:
+        '''This function returns the URLs of the requested topic.'''
+
+        help_text = 'Please enter your search term after {}'
+
+        # Checking if the link exists.
+
+        query_wiki_url = 'https://icanhazdadjoke.com/'
+        
+        try:
+            data = requests.get(query_wiki_url, headers={"Accept":"application/json"})
+
+        except requests.exceptions.RequestException:
+            logging.error('broken link')
+            return 'Uh-Oh ! Sorry ,couldn\'t process the request right now.:slightly_frowning_face:\n' \
+                   'Please try again later.'
+
+        # Checking if the bot accessed the link.
+        if data.status_code != 200:
+            logging.error('Page not found.')
+            return 'Uh-Oh ! Sorry ,couldn\'t process the request right now.:slightly_frowning_face:\n' \
+                   'Please try again later.'
+
+
+        # Checking if there is content for the searched term
+        if len(data.json()['joke']) == 0:
+            new_content = 'I am sorry. The search term you provided is not found :slightly_frowning_face:'
+        else:
+            new_content = data.json()['joke']
+        return new_content
 
     def get_bot_news(self, message, bot_handler: Any) -> Optional[str]:
         help_text = 'Please enter your search term after {}'
