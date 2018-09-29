@@ -220,7 +220,7 @@ class JarvisHandler(object):
 
         # Checking if the link exists.
         query = message['content'][8:]
-        query = '\''+query+'\''
+        #query = '\''+query+'\''
         if query == '':
             return help_text.format(bot_handler.identity().mention)
 
