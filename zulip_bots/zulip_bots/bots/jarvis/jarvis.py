@@ -183,13 +183,11 @@ class JarvisHandler(object):
             data = requests.get(query_teach_url, params=query_teach_params)
 
         except requests.exceptions.RequestException:
-            logging.error('broken link')
             return 'Uh-Oh ! Sorry ,couldn\'t process the request right now.:slightly_frowning_face:\n' \
                    'Please try again later.'
 
         # Checking if the bot accessed the link.
         if data.status_code != 200:
-            logging.error('Page not found.')
             return 'Uh-Oh ! Sorry ,couldn\'t process the request right now.:slightly_frowning_face:\n' \
                    'Please try again later.'
 
@@ -229,7 +227,6 @@ class JarvisHandler(object):
 
         # Checking if the link exists.
         query = message['content'][8:]
-        #query = '\''+query+'\''
         if query == '':
             return help_text.format(bot_handler.identity().mention)
 
