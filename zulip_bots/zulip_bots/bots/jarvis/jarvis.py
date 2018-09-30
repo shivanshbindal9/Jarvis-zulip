@@ -39,6 +39,8 @@ class JarvisHandler(object):
             bot_response = self.get_bot_help_response(message, bot_handler)
         elif first_word == "analyse":
             bot_response = self.get_bot_analyse_response(message, bot_handler)
+        elif first_word == "summarize":
+            bot_response = self.get_bot_summarise_response(message, bot_handler)
         else:
             bot_response = self.get_bot_reply(message, bot_handler)
 
@@ -210,7 +212,8 @@ class JarvisHandler(object):
     def get_bot_help_response(self, message, bot_handler: Any) -> Optional[str]:
         ''' This function returns varios functionalities present in the bot'''
 
-        new_content = "A list of functionalities is as given below: \n @Jarvis wikipedia <Query> \n @Jarvis teach_me <Topic Name> \n @Jarvis news <Topic> \n @Jarvis joke \n @Jarvis analyse <Url>"
+        new_content = "A list of functionalities is as given below: \n @Jarvis wikipedia <Query> \n @Jarvis teach_me <Topic Name> \n @Jarvis news <Topic> \n @Jarvis joke \n @Jarvis analyse <Url> "\
+                      "\n @Jarvis summarize <text_document_url>"
         return new_content
 
 
@@ -247,7 +250,8 @@ class JarvisHandler(object):
             return 'Uh-Oh ! Sorry ,couldn\'t process the request right now.:slightly_frowning_face:\n' \
                    'Please try again later.'
         new_content = 'Analysing... \n'
-
+        #if len(data.json()['err']) != 0:
+            #return 'please enter valid url'
         if len(data.json()['output']['captions']) == 0:
             new_content = 'I am sorry. No object is not found'
         else:
@@ -258,4 +262,39 @@ class JarvisHandler(object):
 
         return new_content
 
+    def get_bot_summarise_response(self, message, bot_handler: Any) -> Optional[str]:
+        '''This function helps you analyse any image just by providing its link'''
+        help_text = 'Please enter your search term after {}'
+
+        # Checking if the link exists.
+        query = message['content'][10:]
+        if query == '':
+            return help_text.format(bot_handler.identity().mention)
+
+        try: 
+            data = requests.post(
+                "https://api.deepai.org/api/summarization",
+                data={
+                    'text': query,
+                },
+                headers={'api-key': 'f408eaa3-9f9a-439a-978c-a3c24eef05c4'}
+            )
+        except requests.exceptions.RequestException:
+            return 'Uh-Oh ! Sorry ,couldn\'t process the request right now.:slightly_frowning_face:\n' \
+                   'Please try again later.'
+
+        # Checking if the bot accessed the link.
+        if data.status_code != 200:
+            return 'Uh-Oh ! Sorry ,couldn\'t process the request right now.:slightly_frowning_face:\n' \
+                   'Please try again later.'
+        new_content = 'Analysing... \n'
+        
+        if len(data.json()['output']) == 0:
+            new_content = 'I am sorry. No object is not found'
+        else:
+           new_content = data.json()['output']
+
+        return new_content
+
+        
 handler_class = JarvisHandler
