@@ -7,7 +7,7 @@ from zulip_bots.lib import Any
 from typing import Optional, Any, Dict
 
 
-# See readme.md for instructions on running this code.
+# See doc.md for instructions on running this code.
 
 class JarvisHandler(object):
     '''
@@ -22,6 +22,7 @@ class JarvisHandler(object):
             Wikipedia, get some courses, get jokes, etc. Users
             should preface searches with "@mention-bot".
             @mention-bot help for more'''
+
 
     def handle_message(self, message: Dict[str, str], bot_handler: Any) -> None:
 
@@ -43,6 +44,7 @@ class JarvisHandler(object):
 
         bot_handler.send_reply(message, bot_response)
 
+ 
     def get_bot_wiki_response(self, message: Dict[str, str], bot_handler: Any) -> Optional[str]:
         '''This function returns the URLs of the requested topic.'''
 
@@ -60,17 +62,15 @@ class JarvisHandler(object):
             srsearch=query,
             format='json'
         )
+
         try:
             data = requests.get(query_wiki_url, params=query_wiki_params)
-
         except requests.exceptions.RequestException:
-            logging.error('broken link')
             return 'Uh-Oh ! Sorry ,couldn\'t process the request right now.:slightly_frowning_face:\n' \
                    'Please try again later.'
 
         # Checking if the bot accessed the link.
         if data.status_code != 200:
-            logging.error('Page not found.')
             return 'Uh-Oh ! Sorry ,couldn\'t process the request right now.:slightly_frowning_face:\n' \
                    'Please try again later.'
 
@@ -86,26 +86,25 @@ class JarvisHandler(object):
                 new_content += str(i + 1) + ':' + '[' + search_string + ']' + '(' + url.replace('"', "%22") + ')\n'
         return new_content
 
+
     def get_bot_joke_response(self, message: Dict[str, str], bot_handler: Any) -> Optional[str]:
-        '''This function returns the URLs of the requested topic.'''
+        '''This function returns a joke '''
 
         help_text = 'Please enter your search term after {}'
 
         # Checking if the link exists.
 
-        query_wiki_url = 'https://icanhazdadjoke.com/'
+        query_joke_url = 'https://icanhazdadjoke.com/'
 
         try:
-            data = requests.get(query_wiki_url, headers={"Accept": "application/json"})
+            data = requests.get(query_joke_url, headers={"Accept": "application/json"})
 
         except requests.exceptions.RequestException:
-            logging.error('broken link')
             return 'Uh-Oh ! Sorry ,couldn\'t process the request right now.:slightly_frowning_face:\n' \
                    'Please try again later.'
 
         # Checking if the bot accessed the link.
         if data.status_code != 200:
-            logging.error('Page not found.')
             return 'Uh-Oh ! Sorry ,couldn\'t process the request right now.:slightly_frowning_face:\n' \
                    'Please try again later.'
 
@@ -116,7 +115,10 @@ class JarvisHandler(object):
             new_content = data.json()['joke']
         return new_content
 
+
     def get_bot_news(self, message, bot_handler: Any) -> Optional[str]:
+        '''This functions returns recent news based on keyword provided by user'''
+
         help_text = 'Please enter your search term after {}'
 
         # Checking if the link exists.
@@ -134,7 +136,6 @@ class JarvisHandler(object):
         try:
             data = requests.get(query_news_url, query_news_params)
         except requests.exceptions.RequestException:
-            # logging.error('broken link')
             return 'Uh-Oh ! Sorry ,couldn\'t process the request right now. :slightly_frowning_face:\n' \
                    'Please try again later.'
             # Checking if there is content for the searched term
@@ -160,8 +161,9 @@ class JarvisHandler(object):
                         i + 1) + ': Author: ' + author + '\n   Title: ' + title + '\n   ' + description + '\n (' + url + ') \n'
         return new_content
 
+
     def get_bot_teach_response(self, message, bot_handler: Any) -> Optional[str]:
-        '''This function returns the URLs of the requested topic.'''
+        '''This function returns various courses avialable on different platforms like udemy, coursera, udacity, etc. to help you learn the topic of your choice.'''
 
         help_text = 'Please enter your search term after {}'
 
@@ -170,15 +172,15 @@ class JarvisHandler(object):
         if query == '':
             return help_text.format(bot_handler.identity().mention)
 
-        query_wiki_url = 'https://www.googleapis.com/customsearch/v1'
-        query_wiki_params = dict(
+        query_teach_url = 'https://www.googleapis.com/customsearch/v1'
+        query_teach_params = dict(
             key='AIzaSyDWus4C1ykIrL3q7uIYB1MCTIwdM5wfQDo',
             cx='004985854750889686468:okdojnlvqsw',
             q=query,
 
         )
         try:
-            data = requests.get(query_wiki_url, params=query_wiki_params)
+            data = requests.get(query_teach_url, params=query_teach_params)
 
         except requests.exceptions.RequestException:
             logging.error('broken link')
@@ -206,16 +208,23 @@ class JarvisHandler(object):
                                + 'Description:' + snippet + '\n' + '\n'
         return new_content
 
+
     def get_bot_help_response(self, message, bot_handler: Any) -> Optional[str]:
-        new_content = "A list of functionalities is as given below: \n @Jarvis wikipedia <Query> \n @Jarvis teach_me <Topic Name> \n @Jarvis news <Topic> \n @Jarvis joke"
+        ''' This function returns varios functionalities present in the bot'''
+
+        new_content = "A list of functionalities is as given below: \n @Jarvis wikipedia <Query> \n @Jarvis teach_me <Topic Name> \n @Jarvis news <Topic> \n @Jarvis joke \n @Jarvis analyse <Url>"
         return new_content
+
 
     def get_bot_reply(self, message, bot_handler: Any) -> Optional[str]:
+        '''This function is returned if the query is not correct'''
 
-        new_content = "It is not a valid query \n please check '@jarvis help'"
+        new_content = "It is not a valid query \n please check '@Jarvis help'"
         return new_content
 
+
     def get_bot_analyse_response(self, message, bot_handler: Any) -> Optional[str]:
+        '''This function helps you analyse any image just by providing its link'''
         help_text = 'Please enter your search term after {}'
 
         # Checking if the link exists.
