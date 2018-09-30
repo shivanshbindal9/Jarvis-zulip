@@ -240,7 +240,7 @@ class JarvisHandler(object):
         if data.status_code != 200:
             return 'Uh-Oh ! Sorry ,couldn\'t process the request right now.:slightly_frowning_face:\n' \
                    'Please try again later.'
-        new_content = 'Analysing...'
+        new_content = 'Analysing... \n'
 
         if len(data.json()['output']['captions']) == 0:
             new_content = 'I am sorry. No object is not found'
@@ -248,7 +248,7 @@ class JarvisHandler(object):
             for i in range(min(5, len(data.json()['output']['captions']))):
                 caption = data.json()['output']['captions'][i]['caption']
                 confidence = data.json()['output']['captions'][i]['confidence']
-                new_content += caption+' is detected with a confidence of '+str(confidence)+' \n'
+                new_content += str(i+1)+' '+caption+' is detected with a confidence of '+str(confidence)+' \n'
 
         return new_content
 
